@@ -1,11 +1,12 @@
 ---
 layout: post
 comments: true
-title:  "Computer Graphic - First Day"
+title:  "Computer Graphic - 2nd Day"
 excerpt: "..."
-date:   2015-01-12 18:30:00
+date:   2015-01-19 18:30:00
 ---
 
-### CG
+### Polygo Clipping
+
  
 
