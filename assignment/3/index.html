@@ -1,0 +1,1210 @@
+﻿<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<script src="jquery.min.js"></script>
+<div id="form">
+<div>
+  <h1>Define</h1>
+  <div>
+    x1 <input id ='p_x1' type="number" onkeypress='return event.charCode == 45 || (event.charCode >= 48 && event.charCode <= 57')></input>
+    <br><br>
+    y1 <input id ='p_y1' type="number" onkeypress='return event.charCode == 45 || (event.charCode >= 48 && event.charCode <= 57')></input>
+    <br><br>
+    x2 <input id ='p_x2' type="number" onkeypress='return event.charCode == 45 || (event.charCode >= 48 && event.charCode <= 57')></input>
+    <br><br>
+    y2 <input id ='p_y2' type="number" onkeypress='return event.charCode == 45 || (event.charCode >= 48 && event.charCode <= 57')></input>
+    <br><br>
+    <hr>
+    m <input id ='m' readonly="true"></input><br><br>
+  </div>
+  <button class="btn" onclick="bt_click();" style="">Plot!</button>
+</div>
+
+
+  <div style="display:none">
+    <h1>Define</h1>
+      <h2 id ="lb_visible" style="display:none;color:green">"Visible"</h2>
+      <h2 id ="lb_invisible" style="display:none;">"Invisible"</h2>
+      <div id ="lb_clipping" style="display:none;">
+        <h2>"Clipping Candiate"</h2>
+          <input id ='x1_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
+          <input id ='y1_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
+          <input id ='x2_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
+          <input id ='y2_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
+      </div>
+    <hr>
+  </div>
+  <div style="display:none">  
+        x min <input id ='xmin' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br>
+        y min <input id ='ymin' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br>
+        x max <input id ='xmax' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br>
+        y max <input id ='ymax' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br>
+  </div>
+  <!-- <hr> -->
+  <div style="display:none">
+        number of points <input id ='num_points' value="5" type="number" style="width: 54px;" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input>
+        <button onclick="gen_textbox();">Generate</button>
+        <br>
+
+       <!--  x 1 <input id ='x1' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br>
+        y 1 <input id ='y1' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br> 
+        x 2 <input id ='x2' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br>
+        y 2 <input id ='y2' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br><br>  -->
+
+        <hr>
+        	
+        	<style type="text/css">
+        		.btn {
+        			cursor:pointer;
+        			padding: 10px;
+        			width: 100%;
+        			background-color: honeydew;        			
+        		}
+        		.btn:hover {
+        			cursor:pointer;
+        			padding: 10px;
+        			width: 100%;
+        			background-color: antiquewhite;        			
+        		}
+
+        	</style>
+        <hr>
+        <div id="polygon_point"> 
+          
+        </div>
+
+
+      <script type="text/javascript">
+      var gen_textbox = function  () {
+        $("#polygon_point").html('');
+
+        var count = $('#num_points').val();
+        for(i=1;i<=count;i++)
+        {
+          $("#polygon_point").append("x "+i+" <input id ='x"+i+"' value='0' type='number'></input><br><br>");
+          $("#polygon_point").append("y "+i+" <input id ='y"+i+"' value='0' type='number'></input><br><br>");
+
+          // $("#polygon_point").append(
+          // 	"<div>"+
+          // 	"x "+i+" <input id ='x"+i+"' value='0' type='number'></input><br><br>" + 
+          // 	"y "+i+" <input id ='y"+i+"' value='0' type='number'></input><br><br>"+
+          // 	"</div>");
+        }        
+      }
+      </script>
+  </div>
+  <hr>
+  
+</div>
+<script src="d3.v3.min.js"></script>
+<script>
+
+
+
+    // collect get param
+    var str = window.location.search;
+    var objURL = {};
+
+    str.replace(
+        new RegExp( "([^?=&]+)(=([^&]*))?", "g" ),
+        function( $0, $1, $2, $3 ){
+            objURL[ $1 ] = $3;
+        }
+    );
+
+    var __count = parseInt(objURL["count"]);
+    var __xmin = parseInt(objURL["xmin"]);
+    var __ymin = parseInt(objURL["ymin"]);
+    var __xmax = parseInt(objURL["xmax"]);
+    var __ymax = parseInt(objURL["ymax"]);
+
+    var __x1 = parseInt(objURL["x1"]);
+    var __y1 = parseInt(objURL["y1"]);
+    var __x2 = parseInt(objURL["x2"]);
+    var __y2 = parseInt(objURL["y2"]);
+    var __point = [];
+
+    $("#xmin").val(__xmin);
+    $("#ymin").val(__ymin);
+    $("#xmax").val(__xmax);
+    $("#ymax").val(__ymax);
+    
+    
+    for(i=1;i<= 2;i++)
+    {
+      $("#p_x"+i).val(parseInt(objURL["x"+i]));   
+      $("#p_y"+i).val(parseInt(objURL["y"+i]));      
+    }
+    
+    m = (__y2 - __y1) / (__x2 - __x1) ;
+    $("#m").val(m);
+
+
+ var res = [];
+ var res2 = [];
+ var res3 = [];
+ var res4 = [];
+ for (var i = 0; i < __point.length; i++)
+ { 
+ 	var _index1 = i;
+ 	var _index2 = (i+1 < __point.length) ? i+1 : 0;
+
+ 	rets = do_down(__point[_index1],__point[_index2]);
+ 	for( ret of rets)
+ 	{
+ 		if(ret != null)
+ 			res.push( ret );
+ 	}
+ }
+
+ for (var i = 0; i < res.length; i++)
+ { 
+ 	var _index1 = i;
+ 	var _index2 = (i+1 < res.length) ? i+1 : 0;
+
+ 	rets = do_right(res[_index1],res[_index2]);
+ 	for( ret of rets)
+ 	{
+ 		if(ret != null)
+ 			res2.push( ret );
+ 	}
+ }
+
+for (var i = 0; i < res2.length; i++)
+ { 
+ 	var _index1 = i;
+ 	var _index2 = (i+1 < res2.length) ? i+1 : 0;
+
+ 	rets = do_up(res2[_index1],res2[_index2]);
+ 	for( ret of rets)
+ 	{
+ 		if(ret != null)
+ 			res3.push( ret );
+ 	}
+ }
+
+ for (var i = 0; i < res3.length; i++)
+ { 
+ 	var _index1 = i;
+ 	var _index2 = (i+1 < res3.length) ? i+1 : 0;
+
+ 	rets = do_left(res3[_index1],res3[_index2]);
+ 	for( ret of rets)
+ 	{
+ 		if(ret != null)
+ 			res4.push( ret );
+ 	}
+ }
+
+
+
+
+
+
+function do_down (p1,p2) {
+	// body...
+
+	//p1
+	if(p1.y >= __ymin && p2.y >= __ymin)
+	{
+		return [p2];
+	}
+	//p2
+	else if(p1.y <  __ymin && p2.y < __ymin)
+	{
+		return [];
+	}
+	//p3
+	else if(p1.y >= __ymin && p2.y < __ymin)
+	{
+		var c_p = clipping('ymin',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p]; //clip
+	}
+	//p4
+	else if(p1.y < __ymin && p2.y >= __ymin)
+	{
+		var c_p = clipping('ymin',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p,p2]; //clip,-2
+	}
+}
+
+function do_right (p1,p2) {
+	// body...
+
+	//p1
+	if(p1.x <= __xmax && p2.x <= __xmax)
+	{
+		return [p2];
+	}
+	//p2
+	else if(p1.x >  __xmax && p2.x > __xmax)
+	{
+		return [];
+	}
+	//p3
+	else if(p1.x <= __xmax && p2.x > __xmax)
+	{
+		var c_p = clipping('xmax',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p]; //clip
+	}
+	//p4
+	else if(p1.x > __xmax && p2.x <= __xmax)
+	{
+		var c_p = clipping('xmax',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p,p2]; //clip,-2
+	}
+}
+function do_up (p1,p2) {
+	// body...
+
+	//p1
+	if(p1.y <= __ymax && p2.y <= __ymax)
+	{
+		return [p2];
+	}
+	//p2
+	else if(p1.y >  __ymax && p2.y > __ymax)
+	{
+		return [];
+	}
+	//p3
+	else if(p1.y <= __ymax && p2.y > __ymax)
+	{
+		var c_p = clipping('ymax',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p]; //clip
+	}
+	//p4
+	else if(p1.y > __ymax && p2.y <= __ymax)
+	{
+		var c_p = clipping('ymax',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p,p2]; //clip,-2
+	}
+}
+function do_left (p1,p2) {
+	// body...
+
+	//p1
+	if(p1.x >= __xmin && p2.x >= __xmin)
+	{
+		return [p2];
+	}
+	//p2
+	else if(p1.x <  __xmin && p2.x < __xmin)
+	{
+		return [];
+	}
+	//p3
+	else if(p1.x >= __xmin && p2.x < __xmin)
+	{
+		var c_p = clipping('xmin',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p]; //clip
+	}
+	//p4
+	else if(p1.x < __xmin && p2.x >= __xmin)
+	{
+		var c_p = clipping('xmin',__xmin,__xmax,__ymin,__ymax,p1.x,p1.y,p2.x,p2.y);
+		return [c_p,p2]; //clip,-2
+	}
+}
+
+function clipping(selectLine,xmin,xmax,ymin,ymax,x1,y1,x2,y2){
+
+    // bit represent by
+    // TOP BOTTOM RIGHT LEFT
+
+    var INSIDE = 0; // 0000
+    var LEFT = 1;   // 0001
+    var RIGHT = 2;  // 0010
+    var BOTTOM = 4; // 0100
+    var TOP = 8;    // 1000
+
+    var code_p1 = 0; // 0000
+    var code_p2 = 0; // 0000
+
+    if(x1 < xmin)
+    {
+      code_p1 = code_p1 |  LEFT;
+    }
+    else if (x1 > xmax)
+    {
+      code_p1 = code_p1 |  RIGHT;
+    }
+
+    if(y1 < ymin)
+    {
+      code_p1 = code_p1 |  BOTTOM;
+    }
+    else if (y1 > ymax)
+    {
+      code_p1 = code_p1 |  TOP;
+    }
+
+    if(x2 < xmin)
+    {
+      code_p2 = code_p2 |  LEFT;
+    }
+    else if (x2 > xmax)
+    {
+      code_p2 = code_p2 |  RIGHT;
+    }
+
+    if(y2 < ymin)
+    {
+      code_p2 = code_p2 |  BOTTOM;
+    }
+    else if (y2 > ymax)
+    {
+      code_p2 = code_p2 |  TOP;
+    }
+
+    // Visible
+    // if(code_p1 == INSIDE && code_p2 == INSIDE){
+    if((code_p1 | code_p2) == INSIDE){
+      return null;
+    }
+    // Non-Visible
+    // else if(code_p1 != INSIDE && code_p2 != INSIDE){
+    else if((code_p1 & code_p2) != INSIDE){
+      return null;
+    }
+    else
+    {     
+     // find point 
+      if ((code_p1 & TOP) != 0)
+      {   // point is above the clip rectangle
+          x1_clip_point = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+          y1_clip_point = ymax;
+      }
+      else if ((code_p1 & BOTTOM) != 0)
+      { // point is below the clip rectangle
+          x1_clip_point = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+          y1_clip_point = ymin;
+      }
+      else if ((code_p1 & RIGHT) != 0)
+      {  // point is to the right of clip rectangle
+          y1_clip_point = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+          x1_clip_point = xmax;
+      }
+      else if ((code_p1 & LEFT) != 0)
+      {   // point is to the left of clip rectangle
+          y1_clip_point = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+          x1_clip_point = xmin;
+      }
+      else
+      {
+          y1_clip_point = null;
+          x1_clip_point = null;
+      }
+
+      if ((code_p2 & TOP) != 0)
+      {   // point is above the clip rectangle
+          x2_clip_point = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+          y2_clip_point = ymax;
+      }
+      else if ((code_p2 & BOTTOM) != 0)
+      { // point is below the clip rectangle
+          x2_clip_point = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+          y2_clip_point = ymin;
+      }
+      else if ((code_p2 & RIGHT) != 0)
+      {  // point is to the right of clip rectangle
+          y2_clip_point = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+          x2_clip_point = xmax;
+      }
+      else if ((code_p2 & LEFT) != 0)
+      {   // point is to the left of clip rectangle
+          y2_clip_point = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+          x2_clip_point = xmin;
+      } 
+      else
+      {
+          y2_clip_point = null;
+          x2_clip_point = null;
+      }
+
+      	
+      if(selectLine == 'ymin')
+      	isOnSelectLine = (y1_clip_point == __ymin);
+      if(selectLine == 'ymax')
+      	isOnSelectLine = (y1_clip_point == __ymax);
+      if(selectLine == 'xmin')
+      	isOnSelectLine = (x1_clip_point == __xmin);
+      if(selectLine == 'xmax')
+      	isOnSelectLine = (x1_clip_point == __xmax);
+      	
+	  if (x1_clip_point != null && y1_clip_point != null && isOnSelectLine) 
+	  {
+	  	return { "x" : x1_clip_point,"y": y1_clip_point};
+	  }
+	  else
+	  {
+	  	return { "x" : x2_clip_point,"y": y2_clip_point};
+	  }
+  		
+
+    }//end else
+}//end function clipping
+
+
+
+// Render D3JS
+var _scale = 2;
+var x_min = -105;
+var x_max = 105;
+
+var y_min = -105;
+var y_max = 105;
+
+var w_width = 1000;
+var w_height = 500;
+
+var margin = {top: 40, right: 340, bottom: 40, left: 200},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var color = d3.scale.category20c();
+
+var formatNumber = d3.format(".4f");
+
+var x = d3.scale.linear()
+    .domain([x_min, x_max])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([y_min, y_max])
+    .range([height, 0]);
+
+
+
+var continuousLine = (function() {
+  var samples = d3.range(0, 1 + 1e-6, 2 / width);
+
+  var discreteLine = d3.svg.line()
+      .x(function(d, i) { return x(samples[i]); })
+      .y(function(d) { return y(d); });
+
+  return function(f) {
+    return discreteLine(samples.map(f));
+  };
+})();
+
+var ease;
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var _x_min = -10;
+var _x_max = 10;
+var _y_min = -10;
+var _y_max = 10;
+
+var _width = Math.abs(__xmin) + Math.abs(__xmax);
+var _height = Math.abs(__ymin) + Math.abs(__ymax);
+_width = _width*_scale;
+_height = _height*_scale;  
+
+
+// // left side
+// var line = svg.append("line")
+//     .attr("x1",  pos_x(__xmin))
+//     .attr("x2",  pos_x(__xmin))
+//     .attr("y1",  pos_y(__ymin))
+//     .attr("y2",  pos_y(__ymax))    
+//     .attr("stroke-width", 2)    
+//     .attr("stroke", "black")          
+//     ; 
+// // right side
+// var line = svg.append("line")
+//     .attr("x1",  pos_x(__xmax))
+//     .attr("x2",  pos_x(__xmax))
+//     .attr("y1",  pos_y(__ymin))
+//     .attr("y2",  pos_y(__ymax))    
+//     .attr("stroke-width", 2)    
+//     .attr("stroke", "black")          
+//     ; 
+// // top side
+// var line = svg.append("line")
+//     .attr("x1",  pos_x(__xmin))
+//     .attr("x2",  pos_x(__xmax))
+//     .attr("y1",  pos_y(__ymax))
+//     .attr("y2",  pos_y(__ymax))    
+//     .attr("stroke-width", 2)    
+//     .attr("stroke", "black")          
+//     ; 
+// // bottom side
+// var line = svg.append("line")
+//     .attr("x1",  pos_x(__xmin))
+//     .attr("x2",  pos_x(__xmax))
+//     .attr("y1",  pos_y(__ymin))
+//     .attr("y2",  pos_y(__ymin))    
+//     .attr("stroke-width", 2)    
+//     .attr("stroke", "black")          
+//     ; 
+
+// drawing line
+  // var line = svg.append("line")
+  //     .attr("x1",  pos_x(__x1))
+  //     .attr("x2",  pos_x(__x2))
+  //     .attr("y1",  pos_y(__y1))
+  //     .attr("y2",  pos_y(__y2))    
+  //     .attr("stroke-width", 3)    
+  //     .attr("stroke", "black")          
+  //     ;
+  // bresenham(__x1,__x2,__y1,__y2);
+  
+  // if(__x1 > __x2 )
+  // {
+  //   _tmp = __x1;
+  //   __x1 = __x2;
+  //   __x2 = _tmp;
+
+  //   _tmp = __y1;
+  //   __y1 = __y2;
+  //   __y2 = _tmp;
+  // }
+
+  var radi = 1;
+  if(m >=0 && m<=1)
+  {
+    var rets = bresenham(__x1,__x2,__y1,__y2);
+    for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.x))
+      .attr("cy", pos_y(ret.y))
+      .attr("fill", "blue")
+      ;
+    }
+  }
+  else if(m > 1)
+  {
+    var rets = bresenham(__y1,__y2,__x1,__x2);
+    for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.y))
+      .attr("cy", pos_y(ret.x))
+      .attr("fill", "red")
+      ;
+    }
+  }
+  else if( m>= -1 && m < 0)
+  {
+    var rets = bresenham(Math.abs(__x1),Math.abs(__x2),Math.abs(__y1),Math.abs(__y2));
+    for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.x * -1))
+      .attr("cy", pos_y(ret.y))
+      .attr("fill", "brown")
+      ;
+    }
+  }
+  else if( m < -1)
+  {    
+    var rets = bresenham(Math.abs(__y1),Math.abs(__y2),Math.abs(__x1),Math.abs(__x2));
+    for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.y * -1))
+      .attr("cy", pos_y(ret.x))
+      .attr("fill", "green")
+      ;
+    }
+  }
+  
+
+  
+
+
+  function bresenham (_x1,_x2,_y1,_y2) {
+    debugger;
+            var x1 = parseInt(_x1);
+            var y1 = parseInt(_y1);
+            var x2 = parseInt(_x2);
+            var y2 = parseInt(_y2);
+            var dy = y2-y1;
+            var dx = x2-x1;
+            var d = 2*dy -dx;
+            var dD = 2 * dy;
+            var dU = 2 * (dy - dx); 
+            var x = x1;
+            var y = y1;
+            
+            var result = [];
+            result.push({"x": x,"y": y});  
+            console.log({"x": x,"y": y}) ;                  
+
+            while (x < x2)
+            {
+
+                if (d < 0)
+                {
+                    d = d + dD;
+                    x = x + 1;
+                }
+                else
+                {
+                    d = d + dU;
+                    x = x + 1;
+                    y = y + 1;                    
+                }
+                result.push({"x": x,"y": y});       
+                console.log({"x": x,"y": y}) ;            
+            }
+            return result;
+  }
+
+// Layout
+// origin POINT
+var circle = svg.append("circle")
+    .attr("r", 3)
+    .attr("cx", pos_x(0))
+    .attr("cy", pos_y(0));
+
+
+// drawing x,y axis
+svg.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + (height)/2  + ")")
+    .call(d3.svg.axis()
+      .scale(x)
+      .orient("bottom"))
+    .append("text")
+      .attr("x", width)
+      .attr("y", -3)
+      .attr("dy", "-.35em")
+      .style("font-weight", "bold")
+      .style("text-anchor", "middle")
+      .text("x  axis");
+
+svg.append("g")
+    .attr("class", "axis axis--y")
+    .attr("transform", "translate("+(width)/2+",0)")
+    .call(d3.svg.axis()
+      .scale(y)
+      .orient("left"))
+    .append("text")
+      .attr("x", 6)
+      .attr("dy", ".35em")
+      .style("font-weight", "bold")
+      .text("y axis");
+
+//เส้นประ
+for (var i = 100; i >= 0; i--) {
+  var circle = svg.append("circle")
+    .attr("r", 1)
+    .attr("cx", pos_x(i))
+    .attr("cy", pos_y(i));
+  // var circle = svg.append("circle")
+  //   .attr("r", 1)
+  //   .attr("cx", pos_x(i*-1))
+  //   .attr("cy", pos_y(i));
+
+}
+
+// ------------- Function ------------- 
+
+function pos(value){
+  return value/2;
+}
+function pos_x(value){  
+
+  return (width/2) + (value * _scale);
+}
+function pos_y(value){
+  return (height/2) - (value * _scale);
+} 
+
+function bt_click(){
+    var x1 = $("#p_x1").val();
+    var y1 = $("#p_y1").val();
+    var x2 = $("#p_x2").val();
+    var y2 = $("#p_y2").val();
+
+    var url = 'index.html';
+    
+    url += '?x1=' + x1;
+    url += '&y1=' + y1;
+    url += '&x2=' + x2;
+    url += '&y2=' + y2;
+
+    window.location = (url);
+}
+
+function conhen2(xmin,xmax,ymin,ymax,x1,y1,x2,y2){
+
+    // bit represent by
+    // TOP BOTTOM RIGHT LEFT
+
+    var INSIDE = 0; // 0000
+    var LEFT = 1;   // 0001
+    var RIGHT = 2;  // 0010
+    var BOTTOM = 4; // 0100
+    var TOP = 8;    // 1000
+
+    var code_p1 = 0; // 0000
+    var code_p2 = 0; // 0000
+
+    if(x1 < xmin)
+    {
+      code_p1 = code_p1 |  LEFT;
+    }
+    else if (x1 > xmax)
+    {
+      code_p1 = code_p1 |  RIGHT;
+    }
+
+    if(y1 < ymin)
+    {
+      code_p1 = code_p1 |  BOTTOM;
+    }
+    else if (y1 > ymax)
+    {
+      code_p1 = code_p1 |  TOP;
+    }
+
+    if(x2 < xmin)
+    {
+      code_p2 = code_p2 |  LEFT;
+    }
+    else if (x2 > xmax)
+    {
+      code_p2 = code_p2 |  RIGHT;
+    }
+
+    if(y2 < ymin)
+    {
+      code_p2 = code_p2 |  BOTTOM;
+    }
+    else if (y2 > ymax)
+    {
+      code_p2 = code_p2 |  TOP;
+    }
+
+    // Visible
+    // if(code_p1 == INSIDE && code_p2 == INSIDE){
+    if((code_p1 | code_p2) == INSIDE){
+      $("#lb_visible").show();
+    }
+    // Non-Visible
+    // else if(code_p1 != INSIDE && code_p2 != INSIDE){
+    else if((code_p1 & code_p2) != INSIDE){
+      $("#lb_invisible").show();
+    }
+    else
+    {     
+     // find point 
+      if ((code_p1 & TOP) != 0)
+      {   // point is above the clip rectangle
+          x1_clip_point = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+          y1_clip_point = ymax;
+      }
+      else if ((code_p1 & BOTTOM) != 0)
+      { // point is below the clip rectangle
+          x1_clip_point = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+          y1_clip_point = ymin;
+      }
+      else if ((code_p1 & RIGHT) != 0)
+      {  // point is to the right of clip rectangle
+          y1_clip_point = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+          x1_clip_point = xmax;
+      }
+      else if ((code_p1 & LEFT) != 0)
+      {   // point is to the left of clip rectangle
+          y1_clip_point = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+          x1_clip_point = xmin;
+      }
+      else
+      {
+          y1_clip_point = null;
+          x1_clip_point = null;
+      }
+
+      if ((code_p2 & TOP) != 0)
+      {   // point is above the clip rectangle
+          x2_clip_point = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+          y2_clip_point = ymax;
+      }
+      else if ((code_p2 & BOTTOM) != 0)
+      { // point is below the clip rectangle
+          x2_clip_point = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+          y2_clip_point = ymin;
+      }
+      else if ((code_p2 & RIGHT) != 0)
+      {  // point is to the right of clip rectangle
+          y2_clip_point = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+          x2_clip_point = xmax;
+      }
+      else if ((code_p2 & LEFT) != 0)
+      {   // point is to the left of clip rectangle
+          y2_clip_point = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+          x2_clip_point = xmin;
+      }
+      else
+      {
+          y2_clip_point = null;
+          x2_clip_point = null;
+      }
+
+
+      $("#lb_clipping").show(); 
+      $("#x1_clip_point").val(x1_clip_point);
+      $("#y1_clip_point").val(y1_clip_point);
+      $("#x2_clip_point").val(x2_clip_point);
+      $("#y2_clip_point").val(y2_clip_point);
+
+      // y = mx + p
+      // m = (delta y / delta x)
+      var m = (y2 - y1) / (x2 -x1);
+
+      // p= y-mx;
+      p1 =  y1 - (m * x1);
+      p2 =  y2 - (m * x2);
+
+      if(p1 == p2)
+      {
+        // y = mx + p 
+        // x = (1/m)(y-p)
+
+        y1cut = (m * xmin) + p1;
+        if(y1cut >= ymin && y1cut <= ymax)
+        {
+          // if(!(xmin < x1 && xmin > x2))
+          {
+            console.log(xmin+","+y1cut);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(xmin))
+                            .attr("cy", pos_y(y1cut))
+                            .attr("fill", "red")  
+
+                            ;
+          }
+
+        }
+        y2cut = (m * xmax) + p2;
+        if(y2cut >= ymin && y2cut <= ymax)
+        {
+          // if(!(xmax < x1 && xmax > x2))
+          {
+            console.log(xmax+","+y2cut);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(xmax))
+                            .attr("cy", pos_y(y2cut))
+                            .attr("fill", "gray")  
+                            ;
+          }
+        }
+        // -------------------------
+        x1cut  = (1/m) * (ymin-p1);
+        if(x1cut >= xmin && x1cut <= xmax)
+        {
+          // if(!(ymin < y1 && ymin > y2))
+          {
+            console.log(x1cut+","+ymin);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(x1cut))
+                            .attr("cy", pos_y(ymin))
+                            .attr("fill", "green")  
+                            ;
+          }
+        }
+        x2cut  = (1/m) * (ymax-p2);
+        if(x2cut >= xmin && x2cut <= xmax)
+        {
+
+          // if(!(ymax < y1 && ymax > y2))
+          {
+            console.log(x2cut+","+ymax);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(x2cut))
+                            .attr("cy", pos_y(ymax))
+                            .attr("fill", "blue")  
+                            ;
+          }
+        }
+
+
+
+      }
+      
+
+
+
+
+    }
+
+}
+function conhen(xmin,xmax,ymin,ymax,x1,y1,x2,y2){
+
+    // bit represent by
+    // TOP BOTTOM RIGHT LEFT
+
+    var INSIDE = 0; // 0000
+    var LEFT = 1;   // 0001
+    var RIGHT = 2;  // 0010
+    var BOTTOM = 4; // 0100
+    var TOP = 8;    // 1000
+
+    var code_p1 = 0; // 0000
+    var code_p2 = 0; // 0000
+
+    if(x1 < xmin)
+    {
+      code_p1 = code_p1 |  LEFT;
+    }
+    else if (x1 > xmax)
+    {
+      code_p1 = code_p1 |  RIGHT;
+    }
+
+    if(y1 < ymin)
+    {
+      code_p1 = code_p1 |  BOTTOM;
+    }
+    else if (y1 > ymax)
+    {
+      code_p1 = code_p1 |  TOP;
+    }
+
+    if(x2 < xmin)
+    {
+      code_p2 = code_p2 |  LEFT;
+    }
+    else if (x2 > xmax)
+    {
+      code_p2 = code_p2 |  RIGHT;
+    }
+
+    if(y2 < ymin)
+    {
+      code_p2 = code_p2 |  BOTTOM;
+    }
+    else if (y2 > ymax)
+    {
+      code_p2 = code_p2 |  TOP;
+    }
+
+    // Visible
+    // if(code_p1 == INSIDE && code_p2 == INSIDE){
+    if((code_p1 | code_p2) == INSIDE){
+      $("#lb_visible").show();
+    }
+    // Non-Visible
+    // else if(code_p1 != INSIDE && code_p2 != INSIDE){
+    else if((code_p1 & code_p2) != INSIDE){
+      $("#lb_invisible").show();
+    }
+    else
+    {     
+     // find point 
+      if ((code_p1 & TOP) != 0)
+      {   // point is above the clip rectangle
+          x1_clip_point = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+          y1_clip_point = ymax;
+      }
+      else if ((code_p1 & BOTTOM) != 0)
+      { // point is below the clip rectangle
+          x1_clip_point = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+          y1_clip_point = ymin;
+      }
+      else if ((code_p1 & RIGHT) != 0)
+      {  // point is to the right of clip rectangle
+          y1_clip_point = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+          x1_clip_point = xmax;
+      }
+      else if ((code_p1 & LEFT) != 0)
+      {   // point is to the left of clip rectangle
+          y1_clip_point = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+          x1_clip_point = xmin;
+      }
+      else
+      {
+          y1_clip_point = null;
+          x1_clip_point = null;
+      }
+
+      if ((code_p2 & TOP) != 0)
+      {   // point is above the clip rectangle
+          x2_clip_point = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+          y2_clip_point = ymax;
+      }
+      else if ((code_p2 & BOTTOM) != 0)
+      { // point is below the clip rectangle
+          x2_clip_point = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+          y2_clip_point = ymin;
+      }
+      else if ((code_p2 & RIGHT) != 0)
+      {  // point is to the right of clip rectangle
+          y2_clip_point = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+          x2_clip_point = xmax;
+      }
+      else if ((code_p2 & LEFT) != 0)
+      {   // point is to the left of clip rectangle
+          y2_clip_point = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+          x2_clip_point = xmin;
+      }
+      else
+      {
+          y2_clip_point = null;
+          x2_clip_point = null;
+      }
+
+
+      $("#lb_clipping").show(); 
+      $("#x1_clip_point").val(x1_clip_point);
+      $("#y1_clip_point").val(y1_clip_point);
+      $("#x2_clip_point").val(x2_clip_point);
+      $("#y2_clip_point").val(y2_clip_point);
+
+      // y = mx + p
+      // m = (delta y / delta x)
+      var m = (y2 - y1) / (x2 -x1);
+
+      // p= y-mx;
+      p1 =  y1 - (m * x1);
+      p2 =  y2 - (m * x2);
+
+      if(p1 == p2)
+      {
+        // y = mx + p 
+        // x = (1/m)(y-p)
+
+        y1cut = (m * xmin) + p1;
+        if(y1cut >= ymin && y1cut <= ymax)
+        {
+          // if(!(xmin < x1 && xmin > x2))
+          {
+            console.log(xmin+","+y1cut);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(xmin))
+                            .attr("cy", pos_y(y1cut))
+                            .attr("fill", "red")  
+
+                            ;
+          }
+
+        }
+        y2cut = (m * xmax) + p2;
+        if(y2cut >= ymin && y2cut <= ymax)
+        {
+          // if(!(xmax < x1 && xmax > x2))
+          {
+            console.log(xmax+","+y2cut);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(xmax))
+                            .attr("cy", pos_y(y2cut))
+                            .attr("fill", "gray")  
+                            ;
+          }
+        }
+        // -------------------------
+        x1cut  = (1/m) * (ymin-p1);
+        if(x1cut >= xmin && x1cut <= xmax)
+        {
+          // if(!(ymin < y1 && ymin > y2))
+          {
+            console.log(x1cut+","+ymin);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(x1cut))
+                            .attr("cy", pos_y(ymin))
+                            .attr("fill", "green")  
+                            ;
+          }
+        }
+        x2cut  = (1/m) * (ymax-p2);
+        if(x2cut >= xmin && x2cut <= xmax)
+        {
+
+          // if(!(ymax < y1 && ymax > y2))
+          {
+            console.log(x2cut+","+ymax);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(x2cut))
+                            .attr("cy", pos_y(ymax))
+                            .attr("fill", "blue")  
+                            ;
+          }
+        }
+
+
+
+      }
+      
+
+
+
+
+    }
+
+}
+
+</script>
+
+
+<style>
+
+body {
+  width: 960px;
+  height: 500px;
+  position: relative;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-linecap: round;
+}
+
+line {
+  /*stroke: #aaa;*/
+  shape-rendering: crispEdges;
+}
+
+#form {
+  position: absolute;
+  top: 2px;
+  right: 50px;
+}
+
+input {
+  width: 140px;
+}
+
+span {
+  position: relative;
+  top: -3px;
+}
+
+output {
+  display: inline-block;
+  width: 3.5em;
+}
+
+</style>

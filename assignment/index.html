@@ -1,0 +1,36 @@
+<script type="text/javascript">
+	
+
+var test = function  () {
+	// body...
+			var x1 = 0;
+            var x2 = 5;
+            var y1 = 0;
+            var y2 = 5;
+            var dy = y2-y1;
+            var dx = x2-x1;
+            var d = 2*dy -dx;
+            var dD = 2 * dy;
+            var dU = 2 * (dy - dx); 
+            var x = x1;
+            var y = y1;
+            console.log(x,y);
+
+            while (x < x2)
+            {
+                if (d < 0)
+                {
+                    d = d + dD;
+                    x = x + 1;
+                }
+                else
+                {
+                    d = d + dD;
+                    x = x + 1;
+                    y = y + 1;                    
+                }
+                console.log(x,y)                    
+            }
+}
+	
+</script>
