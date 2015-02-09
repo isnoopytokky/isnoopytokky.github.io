@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<script src="jquery.min.js"></script>
+<div id="form">
+  <div>
+    <h1>Define</h1>
+    <div>
+      a : 
+      <input id ='p_a' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
+      b : 
+      <input id ='p_b' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
+
+      h : 
+      <input id ='p_h' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
+      k : 
+      <input id ='p_k' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
+      <hr>
+    </div>
+    <button class="btn" onclick="bt_click();" style="">Plot!</button>
+  </div>       	
+</div>
+
+<script src="d3.v3.min.js"></script>
+<script>
+
+
+
+    // collect get param
+    var str = window.location.search;
+    var objURL = {};
+
+    str.replace(
+        new RegExp( "([^?=&]+)(=([^&]*))?", "g" ),
+        function( $0, $1, $2, $3 ){
+            objURL[ $1 ] = $3;
+        }
+    );
+
+    var p_a = parseInt(objURL["a"]);
+    $("#p_a").val(parseInt(objURL["a"]));   
+
+    var p_b = parseInt(objURL["b"]);
+    $("#p_b").val(parseInt(objURL["b"]));      
+
+    var p_h = parseInt(objURL["h"]);
+    $("#p_h").val(parseInt(objURL["h"]));       
+    var p_k = parseInt(objURL["k"]);
+    $("#p_k").val(parseInt(objURL["k"]));       
+
+
+// Render D3JS
+var _scale = 2;
+var x_min = -105;
+var x_max = 105;
+
+var y_min = -105;
+var y_max = 105;
+
+var w_width = 1000;
+var w_height = 500;
+
+var margin = {top: 40, right: 340, bottom: 40, left: 200},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var color = d3.scale.category20c();
+
+var formatNumber = d3.format(".4f");
+
+var x = d3.scale.linear()
+    .domain([x_min, x_max])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([y_min, y_max])
+    .range([height, 0]);
+
+
+
+var continuousLine = (function() {
+  var samples = d3.range(0, 1 + 1e-6, 2 / width);
+
+  var discreteLine = d3.svg.line()
+      .x(function(d, i) { return x(samples[i]); })
+      .y(function(d) { return y(d); });
+
+  return function(f) {
+    return discreteLine(samples.map(f));
+  };
+})();
+
+var ease;
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+ 
+  
+  
+  var radi = 1;
+ //center of ellipse
+  var circle = svg.append("circle")
+    .attr("r", 3)
+    .attr("cx", pos_x(p_h))
+    .attr("cy", pos_y(p_k))
+    .attr("fill", "red");
+
+
+  var rets = ellipse_mid2(p_h,p_k,p_a,p_b);
+  for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.x))
+      .attr("cy", pos_y(ret.y))
+      .attr("fill", "red")
+      ;
+    }    
+
+    var rets = ellipse_mid2(p_h,p_k*-1,p_a,p_b);
+    for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.x))
+      .attr("cy", pos_y(ret.y * -1))
+      .attr("fill", "red")
+      ;
+    }
+
+    var rets = ellipse_mid2(p_h*-1,p_k,p_a,p_b);
+    for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.x* -1))
+      .attr("cy", pos_y(ret.y))
+      .attr("fill", "red")
+      ;
+    }
+
+    var rets = ellipse_mid2(p_h*-1,p_k*-1,p_a,p_b);
+    for(ret of rets)
+    {
+      svg.append("circle")
+      .attr("r", radi)
+      .attr("cx", pos_x(ret.x* -1))
+      .attr("cy", pos_y(ret.y * -1))
+      .attr("fill", "red")
+      ;
+    }
+
+function ellipse_mid2(h,k,a,b){
+    debugger;
+    // var h = 0;
+    // var k = 0;
+
+    // var a = 70;
+    // var b = 10;
+
+
+    var xc  = h;
+    var yc  = k;
+    var rx  = a;
+    var ry  = b;
+
+    var rxSq = rx * rx;
+    var rySq = ry * ry;
+    var x = 0, y = ry, p;
+    var px = 0, py = 2 * rxSq * y;
+
+    var result = [];
+    console.log(xc +","+ yc+","+  x+","+  y);
+    result.push({"x": x+h,"y": y+k});
+
+    p = rySq - (rxSq * ry) + (0.25 * rxSq);
+    while (px < py)
+    {
+        x++;
+        px = px + 2 * rySq;
+        if (p < 0)
+        p = p + rySq + px;
+        else
+        {
+        y--;
+        py = py - 2 * rxSq;
+        p = p + rySq + px - py;
+        }
+        console.log(xc +","+ yc+","+  x+","+  y);
+        result.push({"x": x+h,"y": y+k});
+    }
+
+    
+    p = rySq*(x+0.5)*(x+0.5) + rxSq*(y-1)*(y-1) - rxSq*rySq;
+    while (y > 0)
+    {
+      y--;
+      py = py - 2 * rxSq;
+      if (p > 0)
+        p = p + rxSq - py;
+      else
+      {
+        x++;
+        px = px + 2 * rySq;
+        p = p + rxSq - py + px;
+      }
+      console.log(xc +","+ yc+","+  x+","+  y);
+      result.push({"x": x+h,"y": y+k});
+    }
+
+
+
+    return result;
+}
+
+  function circle_mid (r) {
+    // body...
+    
+    var h = 1-r;          /* initialization */
+    var x = 0;
+    var y = r;
+    debugger;
+    var result = [];
+    // Plot(x,y);
+    console.log(x,y);
+    result.push({"x": x,"y": y});       
+    // While y > x
+    while (y > x)
+    {
+      if (h < 0 ) /* Select U */
+      {
+         dU = 2*x + 3;
+        h  = h + dU;
+        x  = x + 1;
+      }
+      else      /* Select D */
+      {
+        dD = 2*(x-y) + 5;
+        h  = h + dD;
+        x  = x + 1;
+        y  = y - 1;
+      }
+      // Plot(x,y);
+      console.log(x,y);
+      result.push({"x": x,"y": y});       
+    }
+    
+    // debugger;
+    return result;
+    
+  }
+
+// Layout
+// origin POINT
+var circle = svg.append("circle")
+    .attr("r", 3)
+    .attr("cx", pos_x(0))
+    .attr("cy", pos_y(0));
+
+
+// drawing x,y axis
+svg.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + (height)/2  + ")")
+    .call(d3.svg.axis()
+      .scale(x)
+      .orient("bottom"))
+    .append("text")
+      .attr("x", width)
+      .attr("y", -3)
+      .attr("dy", "-.35em")
+      .style("font-weight", "bold")
+      .style("text-anchor", "middle")
+      .text("x  axis");
+
+svg.append("g")
+    .attr("class", "axis axis--y")
+    .attr("transform", "translate("+(width)/2+",0)")
+    .call(d3.svg.axis()
+      .scale(y)
+      .orient("left"))
+    .append("text")
+      .attr("x", 6)
+      .attr("dy", ".35em")
+      .style("font-weight", "bold")
+      .text("y axis");
+
+//เส้นประ
+for (var i = 100; i >= 0; i--) {
+  var circle = svg.append("circle")
+    .attr("r", 1)
+    .attr("cx", pos_x(i))
+    .attr("cy", pos_y(i));
+  // var circle = svg.append("circle")
+  //   .attr("r", 1)
+  //   .attr("cx", pos_x(i*-1))
+  //   .attr("cy", pos_y(i));
+
+}
+
+// ------------- Function ------------- 
+
+function pos(value){
+  return value/2;
+}
+function pos_x(value){  
+
+  return (width/2) + (value * _scale);
+}
+function pos_y(value){
+  return (height/2) - (value * _scale);
+} 
+
+function bt_click(){
+    var p_a = $("#p_a").val();
+    var p_b = $("#p_b").val();
+    var p_h = $("#p_h").val();
+    var p_k = $("#p_k").val();
+
+    var url = 'index.html';
+    
+    url += '?a=' + p_a;
+    url += '&b=' + p_b;
+    url += '&h=' + p_h;
+    url += '&k=' + p_k;
+    
+    window.location = (url);
+}
+
+
+</script>
+
+
+<style>
+
+body {
+  width: 960px;
+  height: 500px;
+  position: relative;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-linecap: round;
+}
+
+line {
+  /*stroke: #aaa;*/
+  shape-rendering: crispEdges;
+}
+
+#form {
+  position: absolute;
+  top: 2px;
+  right: 50px;
+}
+
+input {
+  width: 140px;
+}
+
+span {
+  position: relative;
+  top: -3px;
+}
+
+output {
+  display: inline-block;
+  width: 3.5em;
+}
+
+</style>
+
+          <style type="text/css">
+            .btn {
+              cursor:pointer;
+              padding: 10px;
+              width: 100%;
+              background-color: honeydew;             
+            }
+            .btn:hover {
+              cursor:pointer;
+              padding: 10px;
+              width: 100%;
+              background-color: antiquewhite;             
+            }
+
+          </style>
