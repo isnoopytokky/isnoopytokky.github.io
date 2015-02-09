@@ -1,9 +1,9 @@
 ---
 layout: post
 comments: true
-title:  "Computer Graphic - First Day"
+title:  "Computer Graphic - 3rd Day"
 excerpt: "..."
-date:   2015-01-12 18:30:00
+date:   2015-01-26 18:30:00
 ---
 
 ### CG
