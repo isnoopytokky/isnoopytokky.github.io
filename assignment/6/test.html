@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0064)http://www.mortonfox.com/sites/default/files/oldsite/js/circ.htm -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="imagetoolbar" content="false">
+<meta name="MSSmartTagsPreventParsing" content="true">
+<meta name="author" content="Po Shan Cheah">
+
+
+<title>Find Center of Circle given 3 Points on the Circumference</title>
+
+<script type="text/javascript">
+function clearOutput() {
+    var output = document.getElementById("output");
+    while (output.firstChild)
+	output.removeChild(output.firstChild);
+    return true;
+}
+
+// Write a string to the output area.
+function write(str) {
+    var output = document.getElementById("output");
+    var txt = document.createTextNode(str);
+    output.appendChild(txt);
+}
+
+// Write a string with a newline to the output area.
+function writeln(str) {
+    write(str);
+    var output = document.getElementById("output");
+    var newline = document.createElement("br");
+    output.appendChild(newline);
+}
+
+// Write a string in red to signify an error.
+function errorln(str) {
+    var output = document.getElementById("output");
+    var txt = document.createTextNode(str);
+    var newline = document.createElement("br");
+    var span = document.createElement("span");
+    // setAttribute("class" ...) does not work in IE.
+    span.className = "error";
+    span.appendChild(txt);
+    span.appendChild(newline);
+    output.appendChild(span);
+}
+
+function sqr(a) {
+    return a * a;
+}
+
+function dist(a, b) {
+    return Math.sqrt(sqr(a[0]-b[0]) + sqr(a[1] - b[1]));
+}
+
+function circle(b, c, d) {
+    var temp = sqr(c[0]) + sqr(c[1]);
+    var bc = (sqr(b[0]) + sqr(b[1]) - temp) / 2.;
+    var cd = (temp - sqr(d[0]) - sqr(d[1])) / 2.;
+    var det = (b[0]-c[0]) * (c[1]-d[1]) - (c[0]-d[0]) * (b[1]-c[1]);
+
+    if (Math.abs(det) < 1e-14)
+	return false;
+
+    var circ = new Array(
+	(bc * (c[1]-d[1]) - cd * (b[1]-c[1])) / det,
+	((b[0]-c[0]) * cd - (c[0]-d[0]) * bc) / det
+    );
+
+    return circ;
+}
+
+function coord2str(b) {
+    return "(" + b[0] + ", " + b[1] + ")";
+}
+
+function main() {
+    clearOutput();
+    var inputfield = document.getElementById("input");
+    var floatpat = /[-+]?\d*\.?\d+([eE][-+]?\d+)?/g;
+
+    var floatcount = 0;
+    var result;
+    var nums = new Array();
+    floatpat.lastIndex = 0; // Always start exec() from beginning of string.
+    while (floatcount < 6 && 
+	    (result = floatpat.exec(inputfield.value)) != null)
+	nums[floatcount++] = parseFloat(result[0]);
+
+    if (floatcount < 6) {
+	errorln("Please enter 6 numbers for the 3 coordinates.");
+	return false;
+    }
+
+    var b = new Array(nums[0], nums[1]);
+    var c = new Array(nums[2], nums[3]);
+    var d = new Array(nums[4], nums[5]);
+
+    writeln("b = " + coord2str(b));
+    writeln("c = " + coord2str(c));
+    writeln("d = " + coord2str(d));
+
+    var circ = circle(b, c, d);
+    if (circ === false) {
+	errorln("The 3 points lie on a straight line.");
+	return false;
+    }
+
+    writeln(" ");
+    writeln("center = " + coord2str(circ));
+    writeln(" ");
+    writeln("dist from b = " + dist(b, circ));
+    writeln("dist from c = " + dist(c, circ));
+    writeln("dist from d = " + dist(d, circ));
+
+    return true;
+}
+</script>
+
+<style type="text/css">
+body {
+    background: #fff none;
+    color: #000;
+    font: normal 14px Tahoma, Verdana, Arial, Helvetica, sans-serif;
+}
+
+h1 { font-size: 20px; }
+
+.error { color: red; }
+
+#output {
+    white-space: pre;
+    font: normal 14px monospace;
+}
+
+form { margin: 1em 0; }
+</style>
+
+</head>
+
+<body onload="clearOutput();">
+    <h1>Find Center of Circle given 3 Points on the Circumference</h1>
+
+    <noscript>
+&lt;span class="error"&gt;The Circle Finder requires a browser that
+supports Javascript.&lt;br /&gt;Your browser either does not support
+Javascript or it has Javascript disabled. If you wish to run the
+solver, please upgrade your browser or enable Javascript support.&lt;br
+/&gt;&amp;nbsp;&lt;br /&gt;&lt;/span&gt;</noscript>
+
+    <script type="text/javascript">
+<!--
+// Test for W3C DOM API.
+if (document.getElementById) {
+}
+else {
+    document.write("<span class=\"error\">The Circle Finder requires a browser that supports the W3C DOM API.<br />Your browser does not support this API. If you wish to run the solver, please upgrade your browser. The latest versions of Mozilla Firefox, Opera, and Internet Explorer have support for this API.<br />&nbsp;<br /></span>");
+}
+// -->
+    </script>
+
+    <form action="http://www.mortonfox.com/sites/default/files/oldsite/js/circ.htm#">
+	<label>Enter 3 coordinates along the circumference of the circle:<br>
+	    <textarea name="input" id="input" rows="3" cols="40">672645 4534460
+671115 4533921
+672336 4532442</textarea>
+	</label><br>
+	<input value="Find circle" type="submit" onclick="main(); return false;">
+	<input value="Clear results" onclick="clearOutput();" type="button">
+    </form>
+
+    <hr>
+    <br>
+    <div id="output">b = (10, 10)<br>c = (20, 0)<br>d = (0, 0)<br> <br>center = (10, 0)<br> <br>dist from b = 10<br>dist from c = 10<br>dist from d = 10<br></div>
+
+
+<!-- vim:set tw=0: -->
+</body></html>

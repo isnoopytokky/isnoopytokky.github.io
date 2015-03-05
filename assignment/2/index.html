@@ -64,13 +64,7 @@
         for(i=1;i<=count;i++)
         {
           $("#polygon_point").append("x "+i+" <input id ='x"+i+"' value='0' type='number'></input><br><br>");
-          $("#polygon_point").append("y "+i+" <input id ='y"+i+"' value='0' type='number'></input><br><br>");
-
-          // $("#polygon_point").append(
-          // 	"<div>"+
-          // 	"x "+i+" <input id ='x"+i+"' value='0' type='number'></input><br><br>" + 
-          // 	"y "+i+" <input id ='y"+i+"' value='0' type='number'></input><br><br>"+
-          // 	"</div>");
+          $("#polygon_point").append("y "+i+" <input id ='y"+i+"' value='0' type='number'></input><br><br>");          
         }        
       }
       </script>
@@ -132,7 +126,7 @@ debugger;
  { 
  	var _index1 = i;
  	var _index2 = (i+1 < __point.length) ? i+1 : 0;
- debugger;
+ 
  	rets = do_down(__point[_index1],__point[_index2]);
  	for( ret of rets)
  	{
@@ -187,7 +181,6 @@ for (var i = 0; i < res2.length; i++)
 
 function do_down (p1,p2) {
 	// body...
-	// debugger;
 	//p1
 	if(p1.y >= __ymin && p2.y >= __ymin)
 	{
@@ -211,10 +204,8 @@ function do_down (p1,p2) {
 		return [c_p,p2]; //clip,-2
 	}
 }
-
 function do_right (p1,p2) {
 	// body...
-	// debugger;
 	//p1
 	if(p1.x <= __xmax && p2.x <= __xmax)
 	{
@@ -240,7 +231,6 @@ function do_right (p1,p2) {
 }
 function do_up (p1,p2) {
 	// body...
-	// debugger;
 	//p1
 	if(p1.y <= __ymax && p2.y <= __ymax)
 	{
@@ -266,7 +256,6 @@ function do_up (p1,p2) {
 }
 function do_left (p1,p2) {
 	// body...
-	// debugger;
 	//p1
 	if(p1.x >= __xmin && p2.x >= __xmin)
 	{
@@ -340,9 +329,8 @@ function clipping(selectLine,xmin,xmax,ymin,ymax,x1,y1,x2,y2){
     {
       code_p2 = code_p2 |  TOP;
     }
-    // debugger;
-    // Visible
-    // if(code_p1 == INSIDE && code_p2 == INSIDE){
+    
+    // Visible     
     if((code_p1 | code_p2) == INSIDE){
       return null;
     }
@@ -405,7 +393,7 @@ function clipping(selectLine,xmin,xmax,ymin,ymax,x1,y1,x2,y2){
           y2_clip_point = null;
           x2_clip_point = null;
       }
-      debugger;
+      
       	
       if(selectLine == 'ymin')
       	isOnSelectLine = (y1_clip_point == __ymin);
@@ -585,10 +573,10 @@ else
 	 	_index1 = i;
  		_index2 = (i+1 < res4.length) ? i+1 : 0;
 		svg.append("line")
-	    .attr("x1",  pos_x( res4[_index1].x ))
-	    .attr("x2",  pos_x( res4[_index2].x ))
-	    .attr("y1",  pos_y( res4[_index1].y ))
-	    .attr("y2",  pos_y( res4[_index2].y ))    
+	    .attr("x1",  pos_x( Math.round(res4[_index1].x) ))
+	    .attr("x2",  pos_x( Math.round(res4[_index2].x) ))
+	    .attr("y1",  pos_y( Math.round(res4[_index1].y) ))
+	    .attr("y2",  pos_y( Math.round(res4[_index2].y) ))    
 	    .attr("stroke-width", 2)    
 	    .attr("stroke", "red")          
 	    ;

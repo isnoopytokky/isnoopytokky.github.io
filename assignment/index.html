@@ -1,36 +1,33 @@
-<script type="text/javascript">
-	
+<<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<h1>List of Assignment</h1>
 
-var test = function  () {
-	// body...
-			var x1 = 0;
-            var x2 = 5;
-            var y1 = 0;
-            var y2 = 5;
-            var dy = y2-y1;
-            var dx = x2-x1;
-            var d = 2*dy -dx;
-            var dD = 2 * dy;
-            var dU = 2 * (dy - dx); 
-            var x = x1;
-            var y = y1;
-            console.log(x,y);
+<ul>
+    <li><a href="1/"><h2>Assignment 1 : Line Clipping</h2></a></li>
+    <li><a href="2/"><h2>Assignment 2 : Polygon Clipping</h2></a></li>
+    <li><a href="3/"><h2>Assignment 3 : Line Segment</h2></a></li>
+    <li><a href="4/"><h2>Assignment 4 : Circle</h2></a></li>
+    <li><a href="5/"><h2>Assignment 5 : Ellipse</h2></a></li>
+    <li><a href="6/"><h2>Assignment 6 : Three Point</h2></a></li>
+</ul>
+</body>
+</html>
 
-            while (x < x2)
-            {
-                if (d < 0)
-                {
-                    d = d + dD;
-                    x = x + 1;
-                }
-                else
-                {
-                    d = d + dD;
-                    x = x + 1;
-                    y = y + 1;                    
-                }
-                console.log(x,y)                    
-            }
+<style >
+a{
+    text-decoration: none;
 }
-	
-</script>
+li {
+    background-color:#eee;
+}
+li:hover {
+    background-color:#ddd;
+}
+
+
+
+</style>

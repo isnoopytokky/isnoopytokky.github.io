@@ -6,19 +6,19 @@
   <div>
     <h1>Define</h1>
     <div>
-      a : 
+      a :
       <input id ='p_a' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
-      b : 
+      b :
       <input id ='p_b' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
 
-      h : 
+      h :
       <input id ='p_h' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
-      k : 
+      k :
       <input id ='p_k' type="number" onkeypress='return   (event.charCode >= 48 && event.charCode <= 57')></input><br><br>
       <hr>
     </div>
     <button class="btn" onclick="bt_click();" style="">Plot!</button>
-  </div>       	
+  </div>
 </div>
 
 <script src="d3.v3.min.js"></script>
@@ -38,15 +38,15 @@
     );
 
     var p_a = parseInt(objURL["a"]);
-    $("#p_a").val(parseInt(objURL["a"]));   
+    $("#p_a").val(parseInt(objURL["a"]));
 
     var p_b = parseInt(objURL["b"]);
-    $("#p_b").val(parseInt(objURL["b"]));      
+    $("#p_b").val(parseInt(objURL["b"]));
 
     var p_h = parseInt(objURL["h"]);
-    $("#p_h").val(parseInt(objURL["h"]));       
+    $("#p_h").val(parseInt(objURL["h"]));
     var p_k = parseInt(objURL["k"]);
-    $("#p_k").val(parseInt(objURL["k"]));       
+    $("#p_k").val(parseInt(objURL["k"]));
 
 
 // Render D3JS
@@ -99,9 +99,9 @@ var svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
- 
-  
-  
+
+
+
   var radi = 1;
  //center of ellipse
   var circle = svg.append("circle")
@@ -120,7 +120,7 @@ var svg = d3.select("body").append("svg")
       .attr("cy", pos_y(ret.y))
       .attr("fill", "red")
       ;
-    }    
+    }
 
     var rets = ellipse_mid2(p_h,p_k*-1,p_a,p_b);
     for(ret of rets)
@@ -195,7 +195,7 @@ function ellipse_mid2(h,k,a,b){
         result.push({"x": x+h,"y": y+k});
     }
 
-    
+    console.log("==");
     p = rySq*(x+0.5)*(x+0.5) + rxSq*(y-1)*(y-1) - rxSq*rySq;
     while (y > 0)
     {
@@ -220,7 +220,7 @@ function ellipse_mid2(h,k,a,b){
 
   function circle_mid (r) {
     // body...
-    
+
     var h = 1-r;          /* initialization */
     var x = 0;
     var y = r;
@@ -228,7 +228,7 @@ function ellipse_mid2(h,k,a,b){
     var result = [];
     // Plot(x,y);
     console.log(x,y);
-    result.push({"x": x,"y": y});       
+    result.push({"x": x,"y": y});
     // While y > x
     while (y > x)
     {
@@ -247,12 +247,12 @@ function ellipse_mid2(h,k,a,b){
       }
       // Plot(x,y);
       console.log(x,y);
-      result.push({"x": x,"y": y});       
+      result.push({"x": x,"y": y});
     }
-    
+
     // debugger;
     return result;
-    
+
   }
 
 // Layout
@@ -303,18 +303,18 @@ for (var i = 100; i >= 0; i--) {
 
 }
 
-// ------------- Function ------------- 
+// ------------- Function -------------
 
 function pos(value){
   return value/2;
 }
-function pos_x(value){  
+function pos_x(value){
 
   return (width/2) + (value * _scale);
 }
 function pos_y(value){
   return (height/2) - (value * _scale);
-} 
+}
 
 function bt_click(){
     var p_a = $("#p_a").val();
@@ -323,12 +323,12 @@ function bt_click(){
     var p_k = $("#p_k").val();
 
     var url = 'index.html';
-    
+
     url += '?a=' + p_a;
     url += '&b=' + p_b;
     url += '&h=' + p_h;
     url += '&k=' + p_k;
-    
+
     window.location = (url);
 }
 
@@ -393,13 +393,13 @@ output {
               cursor:pointer;
               padding: 10px;
               width: 100%;
-              background-color: honeydew;             
+              background-color: honeydew;
             }
             .btn:hover {
               cursor:pointer;
               padding: 10px;
               width: 100%;
-              background-color: antiquewhite;             
+              background-color: antiquewhite;
             }
 
           </style>

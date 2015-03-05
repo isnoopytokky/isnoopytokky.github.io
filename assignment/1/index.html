@@ -7,13 +7,16 @@
     <h1>result</h1>
       <h2 id ="lb_visible" style="display:none;color:green">"Visible"</h2>
       <h2 id ="lb_invisible" style="display:none;">"Invisible"</h2>
-      <div id ="lb_clipping" style="display:none;">
+      <div id ="lb_clipping" style="display:none;">      
         <h2>"Clipping Candiate"</h2>
+          
+          <br>
           <input id ='x1_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
           <input id ='y1_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
           <input id ='x2_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
           <input id ='y2_clip_point' type="number" onkeypress='return event.charCode >= 48 && event.charCode <= 57'></input><br>
       </div>
+      <div id ="pcode"></div>
     <hr>
   </div>
   <div>  
@@ -47,7 +50,7 @@ var str = window.location.search;
         }
     );
 
- var _scale = 2;
+ var _scale = 1;
  var __xmin = parseInt(objURL["xmin"]);
  var __ymin = parseInt(objURL["ymin"]);
  var __xmax = parseInt(objURL["xmax"]);
@@ -70,11 +73,16 @@ var str = window.location.search;
  
 
 
-var x_min = -105;
-var x_max = 105;
+// var x_min = -105;
+// var x_max = 105;
 
-var y_min = -105;
-var y_max = 105;
+// var y_min = -105;
+// var y_max = 105;
+var x_min = -205;
+var x_max = 205;
+
+var y_min = -205;
+var y_max = 205;
 
 var w_width = 1000;
 var w_height = 500;
@@ -175,7 +183,7 @@ var line = svg.append("line")
     .attr("stroke", "blue")          
     ;
 
-conhen(__xmin,__xmax,__ymin,__ymax,__x1,__y1,__x2,__y2);
+conhen2(__xmin,__xmax,__ymin,__ymax,__x1,__y1,__x2,__y2);
 
 
 
@@ -349,8 +357,165 @@ function conhen(xmin,xmax,ymin,ymax,x1,y1,x2,y2){
     }
     else
     {     
+      // y = mx + p
+      // m = (delta y / delta x)
+      var m = (y2 - y1) / (x2 -x1);
+
+      // p= y-mx;
+      p1 =  y1 - (m * x1);
+      p2 =  y2 - (m * x2);
+
+      // if(p1 == p2)
+      {
+        // y = mx + p 
+        // x = (1/m)(y-p)
+        var show_alert = false;
+        y1cut = (m * xmin) + p1;
+          if((code_p1 | INSIDE) != 0 && y1cut>= ymin && y1cut <= ymax)
+          {
+            console.log(xmin+","+y1cut);
+            if(show_alert) alert(xmin+","+y1cut);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(xmin))
+                            .attr("cy", pos_y(y1cut))
+                            .attr("fill", "red")  
+                            ;
+            $("#x1_clip_point").val(Math.round( xmin ));
+            $("#y1_clip_point").val(Math.round( y1cut ));                            
+            $("#lb_clipping").show();
+          }
+
+        // }
+        y2cut = (m * xmax) + p2;
+        if((code_p2 | INSIDE) != 0 && y2cut>= ymin && y2cut <= ymax)
+        {
+            console.log(xmax+","+y2cut);
+            if(show_alert)alert(xmax+","+y2cut);
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(xmax))
+                            .attr("cy", pos_y(y2cut))
+                            .attr("fill", "gray")  
+                            ;
+            $("#x2_clip_point").val(Math.round( xmax ));
+            $("#y2_clip_point").val(Math.round( y2cut ));
+            $("#lb_clipping").show();
+        }
+        // -------------------------
+        x1cut  = (1/m) * (ymin-p1);
+        if((code_p1 | INSIDE) != 0 && x1cut>= xmin && x1cut <= xmax)
+        {            
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(x1cut))
+                            .attr("cy", pos_y(ymin))
+                            .attr("fill", "green")  
+                            ;
+            $("#x1_clip_point").val(Math.round( x1cut ));
+            $("#y1_clip_point").val(Math.round( ymin ));
+            $("#lb_clipping").show();
+        }
+        x2cut  = (1/m) * (ymax-p2);
+        if((code_p2 | INSIDE) != 0 && x2cut>= xmin && x2cut <= xmax)
+        {          
+            var circle = svg.append("circle")
+                            .attr("r", 3)
+                            .attr("cx", pos_x(x2cut))
+                            .attr("cy", pos_y(ymax))
+                            .attr("fill", "blue")  
+                            ;
+            $("#x2_clip_point").val(Math.round( x2cut ));
+            $("#y2_clip_point").val(Math.round( ymax ));
+            $("#lb_clipping").show();
+        }
+
+        if((code_p1 | INSIDE) == 0)
+        {
+            $("#x1_clip_point").val(Math.round( x1 ));
+            $("#y1_clip_point").val(Math.round( y1 ));
+        }
+
+        if((code_p2 | INSIDE) == 0)
+        {
+            $("#x2_clip_point").val(Math.round( x2 ));
+            $("#y2_clip_point").val(Math.round( y2 ));
+        }
+        $("#lb_clipping").show();
+
+      }
+    }
+    
+
+    $("#pcode").text("p1code:" + padDigits(code_p1, 4) + " p2code:"+ padDigits(code_p2, 4));
+    function padDigits(number, digits) {
+          return Array(Math.max(digits - String(number.toString(2)).length + 1, 0)).join(0) + number.toString(2);
+    }   
+}
+
+function conhen2(xmin,xmax,ymin,ymax,x1,y1,x2,y2){
+
+    // bit represent by
+    // TOP BOTTOM RIGHT LEFT
+
+    var INSIDE = 0; // 0000
+    var LEFT = 1;   // 0001
+    var RIGHT = 2;  // 0010
+    var BOTTOM = 4; // 0100
+    var TOP = 8;    // 1000
+
+    var code_p1 = 0; // 0000
+    var code_p2 = 0; // 0000
+
+    if(x1 < xmin)
+    {
+      code_p1 = code_p1 |  LEFT;
+    }
+    else if (x1 > xmax)
+    {
+      code_p1 = code_p1 |  RIGHT;
+    }
+
+    if(y1 < ymin)
+    {
+      code_p1 = code_p1 |  BOTTOM;
+    }
+    else if (y1 > ymax)
+    {
+      code_p1 = code_p1 |  TOP;
+    }
+
+    if(x2 < xmin)
+    {
+      code_p2 = code_p2 |  LEFT;
+    }
+    else if (x2 > xmax)
+    {
+      code_p2 = code_p2 |  RIGHT;
+    }
+
+    if(y2 < ymin)
+    {
+      code_p2 = code_p2 |  BOTTOM;
+    }
+    else if (y2 > ymax)
+    {
+      code_p2 = code_p2 |  TOP;
+    }
+    debugger;
+    // Visible
+    // if(code_p1 == INSIDE && code_p2 == INSIDE){
+    if((code_p1 | code_p2) == INSIDE){
+      $("#lb_visible").show();
+    }
+    // Non-Visible
+    // else if(code_p1 != INSIDE && code_p2 != INSIDE){
+    else if((code_p1 & code_p2) != INSIDE){
+      $("#lb_invisible").show();
+    }
+    else
+    {     
      // find point 
-     
       if ((code_p1 & TOP) != 0)
       {   // point is above the clip rectangle
           x1_clip_point = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
@@ -373,8 +538,17 @@ function conhen(xmin,xmax,ymin,ymax,x1,y1,x2,y2){
       }
       else
       {
-          y1_clip_point = null;
-          x1_clip_point = null;
+          if((code_p1& INSIDE) == 0)
+          {
+            y1_clip_point = y1;
+            x1_clip_point = x1;
+          }
+          else
+          {
+            y1_clip_point = null;
+            x1_clip_point = null;  
+          }
+          
       }
 
       if ((code_p2 & TOP) != 0)
@@ -398,88 +572,29 @@ function conhen(xmin,xmax,ymin,ymax,x1,y1,x2,y2){
           x2_clip_point = xmin;
       }
       else
-      {
-          y2_clip_point = null;
-          x2_clip_point = null;
+      {        
+          if((code_p2 & INSIDE) == 0)
+          {
+            y2_clip_point = y2;
+            x2_clip_point = x2;
+          }
+          else
+          {
+            y2_clip_point = null;
+            x2_clip_point = null;  
+          }
       }
 
 
       $("#lb_clipping").show(); 
-      $("#x1_clip_point").val(x1_clip_point);
-      $("#y1_clip_point").val(y1_clip_point);
-      $("#x2_clip_point").val(x2_clip_point);
-      $("#y2_clip_point").val(y2_clip_point);
-
-      // y = mx + p
-      // m = (delta y / delta x)
-      var m = (y2 - y1) / (x2 -x1);
-
-      // p= y-mx;
-      p1 =  y1 - (m * x1);
-      p2 =  y2 - (m * x2);
-
-      if(p1 == p2)
-      {
-        // y = mx + p 
-        // x = (1/m)(y-p)
-        var show_alert = false;
-        y1cut = (m * xmin) + p1;
-          if((code_p1 | INSIDE) != 0 && y1cut>= ymin && y1cut <= ymax)
-          {
-            console.log(xmin+","+y1cut);
-            if(show_alert) alert(xmin+","+y1cut);
-            var circle = svg.append("circle")
-                            .attr("r", 3)
-                            .attr("cx", pos_x(xmin))
-                            .attr("cy", pos_y(y1cut))
-                            .attr("fill", "red")  
-
-                            ;
-          }
-
-        // }
-        y2cut = (m * xmax) + p2;
-        if((code_p2 | INSIDE) != 0 && y2cut>= ymin && y2cut <= ymax)
-        {
-            console.log(xmax+","+y2cut);
-            if(show_alert)alert(xmax+","+y2cut);
-            var circle = svg.append("circle")
-                            .attr("r", 3)
-                            .attr("cx", pos_x(xmax))
-                            .attr("cy", pos_y(y2cut))
-                            .attr("fill", "gray")  
-                            ;
-        }
-        // -------------------------
-        x1cut  = (1/m) * (ymin-p1);
-        if((code_p1 | INSIDE) != 0 && x1cut>= xmin && x1cut <= xmax)
-        {
-            console.log(x1cut+","+ymin);
-            if(show_alert) alert(x1cut+","+ymin);
-            var circle = svg.append("circle")
-                            .attr("r", 3)
-                            .attr("cx", pos_x(x1cut))
-                            .attr("cy", pos_y(ymin))
-                            .attr("fill", "green")  
-                            ;
-        }
-        x2cut  = (1/m) * (ymax-p2);
-        if((code_p2 | INSIDE) != 0 && x2cut>= xmin && x2cut <= xmax)
-        {
-
-            console.log(x2cut+","+ymax);
-            if(show_alert) alert(x2cut+","+ymax);
-            var circle = svg.append("circle")
-                            .attr("r", 3)
-                            .attr("cx", pos_x(x2cut))
-                            .attr("cy", pos_y(ymax))
-                            .attr("fill", "blue")  
-                            ;
-        }
+      $("#x1_clip_point").val(Math.round( x1_clip_point ) );
+      $("#y1_clip_point").val(Math.round( y1_clip_point ) );
+      $("#x2_clip_point").val(Math.round( x2_clip_point ) );
+      $("#y2_clip_point").val(Math.round( y2_clip_point ) );
 
 
 
-      }
+      
       
       //debugger;
 
@@ -488,6 +603,7 @@ function conhen(xmin,xmax,ymin,ymax,x1,y1,x2,y2){
     }
 
 }
+
 
 </script>
 
